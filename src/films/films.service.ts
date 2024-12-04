@@ -4,9 +4,11 @@ import { UpdateFilmInput } from './dto/update-film.input';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Film } from './entities/film.entity';
 import { Repository } from 'typeorm';
+import axios from 'axios';
 
 @Injectable()
 export class FilmsService {
+  private readonly apiUrl = 'https://swapi.dev/api/films';
 
   constructor(@InjectRepository(Film) private readonly filmRepository: Repository<Film>) {
   }
@@ -16,6 +18,11 @@ export class FilmsService {
   }
 
   async findAll() {
+    const { data: { results: films } } = await axios.get(this.apiUrl);
+
+    console.log(films);
+
+
     return this.filmRepository.find();
   }
 
