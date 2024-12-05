@@ -17,6 +17,7 @@ import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
       database: 'swapi',
       synchronize: true,
       autoLoadEntities: true,
+      charset: 'utf8mb4',
     }),
     GraphQLModule.forRoot<ApolloDriverConfig>({
       driver: ApolloDriver,
