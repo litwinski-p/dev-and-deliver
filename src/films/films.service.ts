@@ -24,51 +24,53 @@ export class FilmsService {
     let films = await this.filmRepository.find();
 
     if (films.length === 0 || (films.length > 0 && this.isExpired(films[0]))) {
-      const { data: { results: filmsData } } = await axios.get(this.apiUrl);
 
-      await this.filmRepository.clear();
+      try {
+        const { data: { results: filmsData } } = await axios.get(this.apiUrl);
 
-      const entities: Film[] = [];
-      filmsData.forEach((item) => {
-        const entity = this.filmRepository.create({
-          title: item.title,
-          openingCrawl: item.opening_crawl,
-          director: item.director,
-          producer: item.producer,
+        await this.filmRepository.clear();
+
+        const entities: Film[] = [];
+        filmsData.forEach((item) => {
+          const entity = this.filmRepository.create({
+            title: item.title,
+            openingCrawl: item.opening_crawl,
+            director: item.director,
+            producer: item.producer,
+          });
+
+          entities.push(entity);
         });
 
-        entities.push(entity);
-      });
-
-      return this.filmRepository.save(entities);
+        return this.filmRepository.save(entities);
+      } catch (error) {
+        console.log(error);
+      }
     }
 
     return films;
   }
 
-  isExpired(record) {
-    return dayjs(record.createdAt).isBefore(dayjs().subtract(24, 'hours'));
-  }
-
-
   async findOne(id: number) {
-    const film = this.filmRepository.findOneBy({ id });
+    const film = await this.filmRepository.findOneBy({ id });
     if (!film || (film && this.isExpired(film))) {
       try {
-        const data: {
-          title: string,
-          opening_crawl: string,
-          director: string,
-          producer: string
+        const {
+          data: {
+            title,
+            opening_crawl: openingCrawl,
+            director,
+            producer,
+          },
         } = await axios.get(`${this.apiUrl}/${id}`);
 
         await this.filmRepository.clear();
 
         const film: Film = this.filmRepository.create({
-          title: data.title,
-          openingCrawl: data.opening_crawl,
-          director: data.director,
-          producer: data.producer,
+          title,
+          openingCrawl,
+          director,
+          producer,
         });
 
         return this.filmRepository.save(film);
@@ -78,6 +80,10 @@ export class FilmsService {
     }
 
     return film;
+  }
+
+  isExpired(record) {
+    return dayjs(record.createdAt).isBefore(dayjs().subtract(24, 'hours'));
   }
 
   update(id: number, updateFilmInput: UpdateFilmInput) {
