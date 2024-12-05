@@ -79,6 +79,17 @@ export class FilmsService {
       }
     }
 
+    let str = film.openingCrawl.toLowerCase().replace(/[^\w\s]+/gm, '');
+    str = str.replace(/[\r\n|\n|\r]+/gm, ' ');
+    const words = str.split(/\s+/);
+
+    const countOfUniqueWords = {};
+    for(const word of words) {
+      countOfUniqueWords[word] = (countOfUniqueWords[word] || 0) + 1;
+    }
+
+    console.log(countOfUniqueWords);
+
     return film;
   }
 
