@@ -4,6 +4,7 @@ import { Film } from './entities/film.entity';
 import { CreateFilmInput } from './dto/create-film.input';
 import { UpdateFilmInput } from './dto/update-film.input';
 import GraphQLJSON from 'graphql-type-json';
+import axios from 'axios';
 
 @Resolver(() => Film)
 export class FilmsResolver {
@@ -37,6 +38,30 @@ export class FilmsResolver {
     }
 
     return countOfUniqueWords;
+  }
+
+  @ResolveField(() => GraphQLJSON)
+  async peopleCountAppearingInOpeningCrawl(@Parent() film: Film) {
+    const peopleUrls = JSON.parse(film.people);
+    const peopleNames = {};
+    for (const url of peopleUrls) {
+      try {
+        const { data: { name } } = await axios.get(url);
+
+        const regex = new RegExp(name, 'gi');
+        const matches = film.openingCrawl.replace(/[\r\n|\n|\r]+/gm, ' ').match(regex);
+
+        if (matches) {
+          peopleNames[name] = matches.length;
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    }
+
+    console.log(peopleNames);
+
+    return peopleNames;
   }
 
   @Mutation(() => Film)

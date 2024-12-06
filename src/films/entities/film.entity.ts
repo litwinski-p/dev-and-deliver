@@ -13,7 +13,7 @@ export class Film {
   title: string;
 
   @Field()
-  @Column('text', { nullable: true })
+  @Column('text')
   openingCrawl: string;
 
   @Field()
@@ -23,6 +23,9 @@ export class Film {
   @Field()
   @Column()
   producer: string;
+
+  @Column('text')
+  people: string;
 
   @CreateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP(6)' })
   createdAt: Date;

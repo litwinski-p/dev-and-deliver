@@ -9,9 +9,8 @@ import * as dayjs from 'dayjs';
 
 @Injectable()
 export class FilmsService {
-  private readonly apiUrl = 'https://swapi.dev/api/films';
-
-  // private readonly apiUrl = 'https://jsonplaceholder.typicode.com/posts';
+  private readonly filmsApiUrl = 'https://swapi.dev/api/films';
+  private readonly peopleApiUrl = 'https://swapi.dev/api/people';
 
   constructor(@InjectRepository(Film) private readonly filmRepository: Repository<Film>) {
   }
@@ -21,12 +20,31 @@ export class FilmsService {
   }
 
   async findAll() {
+    // let nextPeopleUrl = this.peopleApiUrl;
+    // const peopleNames: string[] = [];
+    //
+    // while (nextPeopleUrl) {
+    //   try {
+    //     const { data: { next, results } } = await axios.get(nextPeopleUrl);
+    //
+    //     for (const person of results) {
+    //       peopleNames.push(person.name);
+    //     }
+    //
+    //     nextPeopleUrl = next;
+    //   } catch (error) {
+    //     console.log(error);
+    //   }
+    // }
+    //
+    // console.log(peopleNames);
+
     let films = await this.filmRepository.find();
 
     if (films.length === 0 || (films.length > 0 && this.isExpired(films[0]))) {
 
       try {
-        const { data: { results: filmsData } } = await axios.get(this.apiUrl);
+        const { data: { results: filmsData } } = await axios.get(this.filmsApiUrl);
 
         await this.filmRepository.clear();
 
@@ -37,6 +55,7 @@ export class FilmsService {
             openingCrawl: item.opening_crawl,
             director: item.director,
             producer: item.producer,
+            people: JSON.stringify(item.characters),
           });
 
           entities.push(entity);
@@ -62,7 +81,7 @@ export class FilmsService {
             director,
             producer,
           },
-        } = await axios.get(`${this.apiUrl}/${id}`);
+        } = await axios.get(`${this.filmsApiUrl}/${id}`);
 
         await this.filmRepository.clear();
 
