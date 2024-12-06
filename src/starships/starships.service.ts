@@ -3,6 +3,7 @@ import axios from 'axios';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Starship } from './entities/starship.entity';
+import { isExpired } from '../utils/helpers';
 
 @Injectable()
 export class StarshipsService {
@@ -14,7 +15,7 @@ export class StarshipsService {
   async findAll() {
     let starships = await this.starshipRepository.find();
 
-    if (starships.length === 0) {
+    if (starships.length === 0 || (starships.length > 1 && isExpired(starships[0]))) {
       await this.starshipRepository.clear();
       let nextUrl = this.apiUrl;
 
