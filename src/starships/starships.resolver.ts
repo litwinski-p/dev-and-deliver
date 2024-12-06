@@ -1,8 +1,10 @@
-import { Resolver, Query, Mutation, Args, Int } from '@nestjs/graphql';
+import { Resolver, Query, Mutation, Args, Int, ResolveField, Parent } from '@nestjs/graphql';
 import { StarshipsService } from './starships.service';
 import { Starship } from './entities/starship.entity';
 import { CreateStarshipInput } from './dto/create-starship.input';
 import { UpdateStarshipInput } from './dto/update-starship.input';
+import GraphQLJSON from 'graphql-type-json';
+import { Film } from '../films/entities/film.entity';
 
 @Resolver(() => Starship)
 export class StarshipsResolver {
@@ -18,18 +20,13 @@ export class StarshipsResolver {
     return this.starshipsService.findAll();
   }
 
-  @Query(() => Starship, { name: 'starship' })
-  findOne(@Args('id', { type: () => Int }) id: number) {
-    return this.starshipsService.findOne(id);
+  @ResolveField(() => GraphQLJSON)
+  starshipData(@Parent() starship: Starship) {
+    return JSON.parse(starship.data);
   }
 
-  @Mutation(() => Starship)
-  updateStarship(@Args('updateStarshipInput') updateStarshipInput: UpdateStarshipInput) {
-    return this.starshipsService.update(updateStarshipInput.id, updateStarshipInput);
-  }
-
-  @Mutation(() => Starship)
-  removeStarship(@Args('id', { type: () => Int }) id: number) {
-    return this.starshipsService.remove(id);
-  }
+  // @Query(() => Starship, { name: 'starship' })
+  // findOne(@Args('id', { type: () => Int }) id: number) {
+  //   return this.starshipsService.findOne(id);
+  // }
 }
