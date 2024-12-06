@@ -1,11 +1,9 @@
 import { Injectable } from '@nestjs/common';
-import { CreateFilmInput } from './dto/create-film.input';
-import { UpdateFilmInput } from './dto/update-film.input';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Film } from './entities/film.entity';
 import { Repository } from 'typeorm';
 import axios from 'axios';
-import * as dayjs from 'dayjs';
+import { isExpired } from '../utils/helpers';
 
 @Injectable()
 export class FilmsService {
@@ -14,14 +12,10 @@ export class FilmsService {
   constructor(@InjectRepository(Film) private readonly filmRepository: Repository<Film>) {
   }
 
-  create(createFilmInput: CreateFilmInput) {
-    return 'This action adds a new film';
-  }
-
   async findAll() {
     let films = await this.filmRepository.find();
 
-    if (films.length === 0 || (films.length > 0 && this.isExpired(films[0]))) {
+    if (films.length === 0 || (films.length > 0 && isExpired(films[0]))) {
 
       try {
         const { data: { results: filmsData } } = await axios.get(this.filmsApiUrl);
@@ -52,7 +46,7 @@ export class FilmsService {
 
   async findOne(id: number) {
     const film = await this.filmRepository.findOneBy({ id });
-    if (!film || (film && this.isExpired(film))) {
+    if (!film || (film && isExpired(film))) {
       try {
         const {
           data: {
@@ -79,17 +73,5 @@ export class FilmsService {
     }
 
     return film;
-  }
-
-  isExpired(record) {
-    return dayjs(record.createdAt).isBefore(dayjs().subtract(24, 'hours'));
-  }
-
-  update(id: number, updateFilmInput: UpdateFilmInput) {
-    return `This action updates a #${id} film`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} film`;
   }
 }

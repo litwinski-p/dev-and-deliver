@@ -1,4 +1,4 @@
-import { Resolver, Query, ResolveField, Parent } from '@nestjs/graphql';
+import { Resolver, Query, ResolveField, Parent, Args, Int } from '@nestjs/graphql';
 import { StarshipsService } from './starships.service';
 import { Starship } from './entities/starship.entity';
 import GraphQLJSON from 'graphql-type-json';
@@ -18,8 +18,8 @@ export class StarshipsResolver {
     return JSON.parse(starship.data);
   }
 
-  // @Query(() => Starship, { name: 'starship' })
-  // findOne(@Args('id', { type: () => Int }) id: number) {
-  //   return this.starshipsService.findOne(id);
-  // }
+  @Query(() => Starship, { name: 'starship' })
+  findOne(@Args('id', { type: () => Int }) id: number) {
+    return this.starshipsService.findOne(id);
+  }
 }

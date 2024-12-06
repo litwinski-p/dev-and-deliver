@@ -42,4 +42,8 @@ export class StarshipsService {
 
     return starships;
   }
+
+  async findOne(id: number) {
+    return {};
+  }
 }
