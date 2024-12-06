@@ -5,6 +5,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { FilmsModule } from './films/films.module';
 import { GraphQLModule } from '@nestjs/graphql';
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
+import { StarshipsModule } from './starships/starships.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
       autoSchemaFile: true,
     }),
     FilmsModule,
+    StarshipsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
