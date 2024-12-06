@@ -45,33 +45,30 @@ export class FilmsService {
   }
 
   async findOne(id: number) {
-    const film = await this.filmRepository.findOneBy({ id });
-    if (!film || (film && isExpired(film))) {
-      try {
-        const {
-          data: {
-            title,
-            opening_crawl: openingCrawl,
-            director,
-            producer,
-          },
-        } = await axios.get(`${this.filmsApiUrl}/${id}`);
-
-        await this.filmRepository.clear();
-
-        const film: Film = this.filmRepository.create({
+    try {
+      const {
+        data: {
           title,
-          openingCrawl,
+          opening_crawl: openingCrawl,
           director,
           producer,
-        });
+          characters,
+        },
+      } = await axios.get(`${this.filmsApiUrl}/${id}`);
 
-        return this.filmRepository.save(film);
-      } catch (error) {
-        console.log(error);
-      }
+      await this.filmRepository.clear();
+
+      const film: Film = this.filmRepository.create({
+        title,
+        openingCrawl,
+        director,
+        producer,
+        people: JSON.stringify(characters),
+      });
+
+      return this.filmRepository.save(film);
+    } catch (error) {
+      console.log(error);
     }
-
-    return film;
   }
 }

@@ -44,24 +44,19 @@ export class StarshipsService {
   }
 
   async findOne(id: number) {
-    const starship = await this.starshipRepository.findOneBy({ id });
-    if (!starship || (starship && isExpired(starship))) {
-      try {
-        const { data } = await axios.get(`${this.apiUrl}/${id}`);
+    try {
+      const { data } = await axios.get(`${this.apiUrl}/${id}`);
 
-        await this.starshipRepository.clear();
+      await this.starshipRepository.clear();
 
-        const film: Starship = this.starshipRepository.create({
-          id: data.url.match(/\/(\d+)\/?$/)[1],
-          data: JSON.stringify(data),
-        });
+      const film: Starship = this.starshipRepository.create({
+        id: data.url.match(/\/(\d+)\/?$/)[1],
+        data: JSON.stringify(data),
+      });
 
-        return this.starshipRepository.save(film);
-      } catch (error) {
-        console.log(error);
-      }
+      return this.starshipRepository.save(film);
+    } catch (error) {
+      console.log(error);
     }
-
-    return starship;
   }
 }
