@@ -1,4 +1,4 @@
-import { Resolver, Query, Mutation, Args, Int, ResolveField, Parent } from '@nestjs/graphql';
+import { Resolver, Query, Args, Int, ResolveField, Parent } from '@nestjs/graphql';
 import { FilmsService } from './films.service';
 import { Film } from './entities/film.entity';
 import GraphQLJSON from 'graphql-type-json';
