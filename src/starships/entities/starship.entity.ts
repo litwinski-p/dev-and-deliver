@@ -1,5 +1,5 @@
 import { Field, HideField, ObjectType } from '@nestjs/graphql';
-import { Column, CreateDateColumn, Entity, Exclusion, PrimaryColumn } from 'typeorm';
+import { Column, CreateDateColumn, Entity, PrimaryColumn } from 'typeorm';
 
 @ObjectType()
 @Entity()
