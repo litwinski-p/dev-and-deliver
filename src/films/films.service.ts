@@ -10,7 +10,6 @@ import * as dayjs from 'dayjs';
 @Injectable()
 export class FilmsService {
   private readonly filmsApiUrl = 'https://swapi.dev/api/films';
-  private readonly peopleApiUrl = 'https://swapi.dev/api/people';
 
   constructor(@InjectRepository(Film) private readonly filmRepository: Repository<Film>) {
   }
@@ -20,25 +19,6 @@ export class FilmsService {
   }
 
   async findAll() {
-    // let nextPeopleUrl = this.peopleApiUrl;
-    // const peopleNames: string[] = [];
-    //
-    // while (nextPeopleUrl) {
-    //   try {
-    //     const { data: { next, results } } = await axios.get(nextPeopleUrl);
-    //
-    //     for (const person of results) {
-    //       peopleNames.push(person.name);
-    //     }
-    //
-    //     nextPeopleUrl = next;
-    //   } catch (error) {
-    //     console.log(error);
-    //   }
-    // }
-    //
-    // console.log(peopleNames);
-
     let films = await this.filmRepository.find();
 
     if (films.length === 0 || (films.length > 0 && this.isExpired(films[0]))) {
