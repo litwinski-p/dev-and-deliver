@@ -24,7 +24,9 @@ export class StarshipsService {
     let starships = await this.starshipRepository.find(findOptions);
 
     if (starships.length === 0 || (starships.length > 1 && isExpired(starships[0]))) {
-      await this.starshipRepository.clear();
+
+      await this.starshipRepository.delete({ cacheType: CacheType.ALL });
+
       let nextUrl = this.apiUrl;
 
       const entities: Starship[] = [];
@@ -36,6 +38,7 @@ export class StarshipsService {
             entities.push(this.starshipRepository.create({
               id: Math.floor(Math.random() * (100000 - 90000 + 1) + 90000),
               data: JSON.stringify(item),
+              cacheType: CacheType.ALL,
             }));
           }
 
