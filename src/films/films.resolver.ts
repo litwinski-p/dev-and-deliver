@@ -42,7 +42,7 @@ export class FilmsResolver {
   }
 
   @ResolveField(() => GraphQLJSON)
-  async peopleCountAppearingInOpeningCrawl(@Parent() film: Film) {
+  async peopleNamesCountAppearingInOpeningCrawl(@Parent() film: Film) {
     const peopleNames = {};
     for (const { name } of this.people) {
       const regex = new RegExp(name, 'gi');
