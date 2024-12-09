@@ -1,11 +1,15 @@
 import { ObjectType, Field } from '@nestjs/graphql';
-import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, CreateDateColumn, Entity, PrimaryColumn, PrimaryGeneratedColumn } from 'typeorm';
+
+export enum CacheType {
+  SINGLE = 'single',
+  ALL = 'all'
+}
 
 @ObjectType()
 @Entity()
 export class Film {
-  @Field()
-  @PrimaryGeneratedColumn()
+  @PrimaryColumn()
   id: number;
 
   @Field()
@@ -23,6 +27,9 @@ export class Film {
   @Field()
   @Column()
   producer: string;
+
+  @Column({ type: 'enum', enum: CacheType, default: CacheType.ALL })
+  cacheType: CacheType;
 
   @CreateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP(6)' })
   createdAt: Date;

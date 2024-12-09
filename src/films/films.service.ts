@@ -1,6 +1,6 @@
 import { Injectable, OnApplicationBootstrap } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Film } from './entities/film.entity';
+import { CacheType, Film } from './entities/film.entity';
 import { Repository } from 'typeorm';
 import axios from 'axios';
 import { isExpired } from '../utils/helpers';
@@ -50,21 +50,23 @@ export class FilmsService implements OnApplicationBootstrap {
 
 
   async findAll() {
-    let films = await this.filmRepository.find();
+    const films = await this.filmRepository.find({ where: { cacheType: CacheType.ALL } });
 
     if (films.length === 0 || (films.length > 0 && isExpired(films[0]))) {
       try {
         const { data: { results: filmsData } } = await axios.get(this.filmsApiUrl);
 
-        await this.filmRepository.clear();
+        await this.filmRepository.delete({ cacheType: CacheType.ALL });
 
         const entities: Film[] = [];
         filmsData.forEach((item) => {
           const entity = this.filmRepository.create({
+            id: Math.floor(Math.random() * (100000 - 90000 + 1) + 90000),
             title: item.title,
             openingCrawl: item.opening_crawl,
             director: item.director,
             producer: item.producer,
+            cacheType: CacheType.ALL,
           });
 
           entities.push(entity);
@@ -80,28 +82,38 @@ export class FilmsService implements OnApplicationBootstrap {
   }
 
   async findOne(id: number) {
-    try {
-      const {
-        data: {
+    const film = await this.filmRepository.findOne({ where: { id, cacheType: CacheType.SINGLE } });
+
+    if (!film || (film && isExpired(film))) {
+      try {
+        const {
+          data: {
+            title,
+            opening_crawl: openingCrawl,
+            director,
+            producer,
+          },
+        } = await axios.get(`${this.filmsApiUrl}/${id}`);
+
+        if (film) {
+          await this.filmRepository.delete(film.id);
+        }
+
+        const newFilm: Film = this.filmRepository.create({
+          id,
           title,
-          opening_crawl: openingCrawl,
+          openingCrawl,
           director,
           producer,
-        },
-      } = await axios.get(`${this.filmsApiUrl}/${id}`);
+          cacheType: CacheType.SINGLE,
+        });
 
-      await this.filmRepository.clear();
-
-      const film: Film = this.filmRepository.create({
-        title,
-        openingCrawl,
-        director,
-        producer,
-      });
-
-      return this.filmRepository.save(film);
-    } catch (error) {
-      console.log(error);
+        return this.filmRepository.save(newFilm);
+      } catch (error) {
+        console.log(error);
+      }
     }
+
+    return film;
   }
 }
