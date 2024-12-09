@@ -65,7 +65,6 @@ export class FilmsService implements OnApplicationBootstrap {
             openingCrawl: item.opening_crawl,
             director: item.director,
             producer: item.producer,
-            people: JSON.stringify(item.characters),
           });
 
           entities.push(entity);
@@ -88,7 +87,6 @@ export class FilmsService implements OnApplicationBootstrap {
           opening_crawl: openingCrawl,
           director,
           producer,
-          characters,
         },
       } = await axios.get(`${this.filmsApiUrl}/${id}`);
 
@@ -99,7 +97,6 @@ export class FilmsService implements OnApplicationBootstrap {
         openingCrawl,
         director,
         producer,
-        people: JSON.stringify(characters),
       });
 
       return this.filmRepository.save(film);

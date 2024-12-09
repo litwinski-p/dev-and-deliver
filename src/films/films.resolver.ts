@@ -3,14 +3,23 @@ import { FilmsService } from './films.service';
 import { Film } from './entities/film.entity';
 import GraphQLJSON from 'graphql-type-json';
 import axios from 'axios';
+import { InjectRepository } from '@nestjs/typeorm';
+import { People } from './entities/people.entity';
+import { Repository } from 'typeorm';
 
 @Resolver(() => Film)
 export class FilmsResolver {
-  constructor(private readonly filmsService: FilmsService) {
+  private people: People[] = [];
+
+  constructor(
+    private readonly filmsService: FilmsService,
+    @InjectRepository(People) private readonly peopleRepository: Repository<People>,
+  ) {
   }
 
   @Query(() => [Film], { name: 'films' })
-  findAll() {
+  async findAll() {
+    this.people = await this.peopleRepository.find();
     return this.filmsService.findAll();
   }
 
@@ -35,20 +44,13 @@ export class FilmsResolver {
 
   @ResolveField(() => GraphQLJSON)
   async peopleCountAppearingInOpeningCrawl(@Parent() film: Film) {
-    const peopleUrls = JSON.parse(film.people);
     const peopleNames = {};
-    for (const url of peopleUrls) {
-      try {
-        const { data: { name } } = await axios.get(url);
+    for (const { name } of this.people) {
+      const regex = new RegExp(name, 'gi');
+      const matches = film.openingCrawl.replace(/[\r\n|\n|\r]+/gm, ' ').match(regex);
 
-        const regex = new RegExp(name, 'gi');
-        const matches = film.openingCrawl.replace(/[\r\n|\n|\r]+/gm, ' ').match(regex);
-
-        if (matches) {
-          peopleNames[name] = matches.length;
-        }
-      } catch (error) {
-        console.log(error);
+      if (matches) {
+        peopleNames[name] = matches.length;
       }
     }
 

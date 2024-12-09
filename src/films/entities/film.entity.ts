@@ -24,9 +24,6 @@ export class Film {
   @Column()
   producer: string;
 
-  @Column('text')
-  people: string;
-
   @CreateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP(6)' })
   createdAt: Date;
 
