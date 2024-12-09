@@ -36,7 +36,7 @@ export class StarshipsService {
 
           for (const item of results) {
             entities.push(this.starshipRepository.create({
-              id: Math.floor(Math.random() * (100000 - 90000 + 1) + 90000),
+              id: Math.floor(Math.random() * (1000000 - 90000 + 1) + 90000),
               data: JSON.stringify(item),
               cacheType: CacheType.ALL,
             }));

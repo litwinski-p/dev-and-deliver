@@ -69,7 +69,7 @@ export class FilmsService implements OnApplicationBootstrap {
         const entities: Film[] = [];
         filmsData.forEach((item) => {
           const entity = this.filmRepository.create({
-            id: Math.floor(Math.random() * (100000 - 90000 + 1) + 90000),
+            id: Math.floor(Math.random() * (1000000 - 90000 + 1) + 90000),
             title: item.title,
             openingCrawl: item.opening_crawl,
             director: item.director,
