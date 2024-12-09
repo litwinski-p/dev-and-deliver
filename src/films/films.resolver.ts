@@ -2,7 +2,6 @@ import { Resolver, Query, Args, Int, ResolveField, Parent } from '@nestjs/graphq
 import { FilmsService } from './films.service';
 import { Film } from './entities/film.entity';
 import GraphQLJSON from 'graphql-type-json';
-import axios from 'axios';
 import { InjectRepository } from '@nestjs/typeorm';
 import { People } from './entities/people.entity';
 import { Repository } from 'typeorm';
