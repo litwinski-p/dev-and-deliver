@@ -5,6 +5,7 @@ import GraphQLJSON from 'graphql-type-json';
 import { InjectRepository } from '@nestjs/typeorm';
 import { People } from './entities/people.entity';
 import { Repository } from 'typeorm';
+import { PaginationFields } from '../utils/pagination';
 
 @Resolver(() => Film)
 export class FilmsResolver {
@@ -17,9 +18,11 @@ export class FilmsResolver {
   }
 
   @Query(() => [Film], { name: 'films' })
-  async findAll() {
+  async findAll(@Args() paginationFields: PaginationFields) {
+    const { page, limit } = paginationFields;
+
     this.people = await this.peopleRepository.find();
-    return this.filmsService.findAll();
+    return this.filmsService.findAll(page, limit);
   }
 
   @Query(() => Film, { name: 'film' })

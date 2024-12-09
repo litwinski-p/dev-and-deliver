@@ -1,7 +1,7 @@
 import { Injectable, OnApplicationBootstrap } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Film } from './entities/film.entity';
-import { Repository } from 'typeorm';
+import { FindManyOptions, Repository } from 'typeorm';
 import axios from 'axios';
 import { CacheType, isExpired } from '../utils/helpers';
 import { People } from './entities/people.entity';
@@ -49,8 +49,16 @@ export class FilmsService implements OnApplicationBootstrap {
   }
 
 
-  async findAll() {
-    const films = await this.filmRepository.find({ where: { cacheType: CacheType.ALL } });
+  async findAll(page: number, limit: number) {
+    const findOptions: FindManyOptions = {
+      where: {
+        cacheType: CacheType.ALL,
+      },
+      skip: (page - 1) * limit,
+      take: limit,
+    };
+
+    const films = await this.filmRepository.find(findOptions);
 
     if (films.length === 0 || (films.length > 0 && isExpired(films[0]))) {
       try {
@@ -72,7 +80,8 @@ export class FilmsService implements OnApplicationBootstrap {
           entities.push(entity);
         });
 
-        return this.filmRepository.save(entities);
+        await this.filmRepository.save(entities);
+        return this.filmRepository.find(findOptions);
       } catch (error) {
         console.log(error);
       }
