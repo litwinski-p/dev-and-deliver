@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import axios from 'axios';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { FindManyOptions, Repository } from 'typeorm';
 import { Starship } from './entities/starship.entity';
 import { CacheType, isExpired } from '../utils/helpers';
 
@@ -12,8 +12,16 @@ export class StarshipsService {
   constructor(@InjectRepository(Starship) private readonly starshipRepository: Repository<Starship>) {
   }
 
-  async findAll() {
-    let starships = await this.starshipRepository.find({ where: { cacheType: CacheType.ALL } });
+  async findAll(page: number, limit: number): Promise<Starship[]> {
+    const findOptions: FindManyOptions = {
+      where: {
+        cacheType: CacheType.ALL,
+      },
+      skip: (page - 1) * limit,
+      take: limit,
+    };
+
+    let starships = await this.starshipRepository.find(findOptions);
 
     if (starships.length === 0 || (starships.length > 1 && isExpired(starships[0]))) {
       await this.starshipRepository.clear();
@@ -37,7 +45,8 @@ export class StarshipsService {
         }
       }
 
-      return this.starshipRepository.save(entities);
+      await this.starshipRepository.save(entities);
+      return this.starshipRepository.find(findOptions);
     }
 
     return starships;
