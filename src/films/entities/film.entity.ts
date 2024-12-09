@@ -1,10 +1,6 @@
 import { ObjectType, Field } from '@nestjs/graphql';
 import { Column, CreateDateColumn, Entity, PrimaryColumn } from 'typeorm';
-
-export enum CacheType {
-  SINGLE = 'single',
-  ALL = 'all'
-}
+import { CacheType } from '../../utils/helpers';
 
 @ObjectType()
 @Entity()

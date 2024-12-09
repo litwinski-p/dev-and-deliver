@@ -3,7 +3,7 @@ import axios from 'axios';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Starship } from './entities/starship.entity';
-import { isExpired } from '../utils/helpers';
+import { CacheType, isExpired } from '../utils/helpers';
 
 @Injectable()
 export class StarshipsService {
@@ -13,7 +13,7 @@ export class StarshipsService {
   }
 
   async findAll() {
-    let starships = await this.starshipRepository.find();
+    let starships = await this.starshipRepository.find({ where: { cacheType: CacheType.ALL } });
 
     if (starships.length === 0 || (starships.length > 1 && isExpired(starships[0]))) {
       await this.starshipRepository.clear();
@@ -26,7 +26,7 @@ export class StarshipsService {
 
           for (const item of results) {
             entities.push(this.starshipRepository.create({
-              id: item.url.match(/\/(\d+)\/?$/)[1],
+              id: Math.floor(Math.random() * (100000 - 90000 + 1) + 90000),
               data: JSON.stringify(item),
             }));
           }
@@ -44,19 +44,28 @@ export class StarshipsService {
   }
 
   async findOne(id: number) {
-    try {
-      const { data } = await axios.get(`${this.apiUrl}/${id}`);
+    const starship = await this.starshipRepository.findOne({ where: { id, cacheType: CacheType.SINGLE } });
 
-      await this.starshipRepository.clear();
+    if (!starship || (starship && isExpired(starship))) {
+      try {
+        const { data } = await axios.get(`${this.apiUrl}/${id}`);
 
-      const film: Starship = this.starshipRepository.create({
-        id: data.url.match(/\/(\d+)\/?$/)[1],
-        data: JSON.stringify(data),
-      });
+        if (starship) {
+          await this.starshipRepository.delete(starship.id);
+        }
 
-      return this.starshipRepository.save(film);
-    } catch (error) {
-      console.log(error);
+        const newStarship: Starship = this.starshipRepository.create({
+          id: data.url.match(/\/(\d+)\/?$/)[1],
+          data: JSON.stringify(data),
+          cacheType: CacheType.SINGLE,
+        });
+
+        return this.starshipRepository.save(newStarship);
+      } catch (error) {
+        console.log(error);
+      }
     }
+
+    return starship;
   }
 }

@@ -1,9 +1,9 @@
 import { Injectable, OnApplicationBootstrap } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { CacheType, Film } from './entities/film.entity';
+import { Film } from './entities/film.entity';
 import { Repository } from 'typeorm';
 import axios from 'axios';
-import { isExpired } from '../utils/helpers';
+import { CacheType, isExpired } from '../utils/helpers';
 import { People } from './entities/people.entity';
 
 @Injectable()
